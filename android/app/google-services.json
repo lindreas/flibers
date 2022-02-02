@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "185747443193",
+    "project_id": "flibers",
+    "storage_bucket": "flibers.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:185747443193:android:f1d0c1247db01803514128",
+        "android_client_info": {
+          "package_name": "com.example.flibers"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "185747443193-5dbim0r37nuajbbg3bp65v2e4fk0kc2p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzueDII9aJGp1ycpNUnGanM3lacPsV2TA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "185747443193-5dbim0r37nuajbbg3bp65v2e4fk0kc2p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
