@@ -1,69 +1,73 @@
-import 'dart:async';
-import 'dart:ffi';
-import 'package:flutter/widgets.dart';
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:flutter/foundation.dart';
+import 'package:sqflite/sqflite.dart' as sql;
 
-void main() async {
-  //maby not async here
-  WidgetsFlutterBinding.ensureInitialized();
-  // Open the database and store the reference.
-  final database = openDatabase(
-    // Set the path to the database. Note: Using the `join` function from the
-    // `path` package is best practice to ensure the path is correctly
-    // constructed for each platform.
-    join(await getDatabasesPath(), 'flibers.db'),
-  );
+class SQLHelper {
+  static Future<void> createTables(sql.Database database) async {
+    await database.execute("""CREATE TABLE tricks(
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        name TEXT,
+        level INTEGER,
+        category TEXT
+      )
+      """);
+  }
+// id: the id of a item
+// title, description: name and description of your activity
+// created_at: the time that the item was created. It will be automatically handled by SQLite
 
-  Future<List<Trick>> tricks() async {
-    // Get a reference to the database.
-    final db = await database;
-
-    // Query the table for all The Dogs.
-    final List<Map<String, dynamic>> maps = await db.query('tricks');
-
-    // Convert the List<Map<String, dynamic> into a List<Dog>.
-    return List.generate(maps.length, (i) {
-      return Trick(
-        id: maps[i]['id'],
-        name: maps[i]['name'],
-        level: maps[i]['level'],
-        category: maps[i]['category'],
-        flatGround: maps[i]['flatGround'],
-      );
-    });
+  static Future<sql.Database> db() async {
+    return sql.openDatabase(
+      'tricks.db',
+      version: 1,
+      onCreate: (sql.Database database, int version) async {
+        await createTables(database);
+      },
+    );
   }
 
-  print(await tricks());
-}
+  // Create new item (journal)
+  static Future<int> createItem(
+      String name, int? level, String? category) async {
+    final db = await SQLHelper.db();
 
-class Trick {
-  final int id;
-  final String name;
-  final int level;
-  final String category;
-  final Bool flatGround;
-
-  Trick({
-    required this.id,
-    required this.name,
-    required this.level,
-    required this.category,
-    required this.flatGround,
-  });
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'level': level,
-      'category': category,
-      'flatGround': flatGround,
-    };
+    final data = {'name': name, 'level': level, 'category': category};
+    final id = await db.insert('tricks', data,
+        conflictAlgorithm: sql.ConflictAlgorithm.replace);
+    return id;
   }
 
-  @override
-  String toString() {
-    return 'Trick{id: $id, name: $name, level: $level, category: $category, flatGround: $flatGround}';
+  // Read all items (journals)
+  static Future<List<Map<String, dynamic>>> getItems() async {
+    final db = await SQLHelper.db();
+    return db.query('tricks', orderBy: "id");
+  }
+
+  // Read a single item by id
+  // The app doesn't use this method but I put here in case you want to see it
+  static Future<List<Map<String, dynamic>>> getItem(int id) async {
+    final db = await SQLHelper.db();
+    return db.query('tricks', where: "id = ?", whereArgs: [id], limit: 1);
+  }
+
+  // Update an item by id
+  static Future<int> updateItem(
+      int id, String name, int? level, String? category) async {
+    final db = await SQLHelper.db();
+
+    final data = {'name': name, 'level': level, 'category': category};
+
+    final result =
+        await db.update('tricks', data, where: "id = ?", whereArgs: [id]);
+    return result;
+  }
+
+  // Delete
+  static Future<void> deleteItem(int id) async {
+    final db = await SQLHelper.db();
+    try {
+      await db.delete("tricks", where: "id = ?", whereArgs: [id]);
+    } catch (err) {
+      debugPrint("Something went wrong when deleting a trick: $err");
+    }
   }
 }
