@@ -35,6 +35,13 @@ class HomePage extends StatelessWidget {
 
   HomePage(this.logic);
 
+  List<Map<String, dynamic>> tricks = [];
+
+  void getTricks() async {
+    final data = await SQLHelper.getItems();
+    tricks = data;
+  }
+
   @override
   Widget build(BuildContext context) {
     final ButtonStyle style = ElevatedButton.styleFrom(
@@ -94,19 +101,54 @@ class QuickGame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ButtonStyle style = ElevatedButton.styleFrom(
+        textStyle: const TextStyle(fontSize: 20, fontFamily: "Droid Sans"),
+        primary: const Color(0xffE47474),
+        minimumSize: const Size(225, 35));
     return Scaffold(
       appBar: AppBar(
         //separate button for back function?
         backgroundColor: const Color(0xff194346),
       ),
       backgroundColor: const Color(0xff194346),
-      body: const Center(
-        child: SizedBox(
-          width: 100.0,
-          height: 100.0,
-          child: Card(child: Text("Please select difficulty level")),
-        ),
-      ),
+      body: Center(
+          child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          const Text("Please select difficulty level",
+              style: TextStyle(
+                color: Color(0xffE47474),
+              )),
+          ElevatedButton(
+            style: style,
+            onPressed: () {
+              print(HomePage(logic).tricks);
+            },
+            child: const Text('Easy'),
+          ),
+          ElevatedButton(
+            style: style,
+            onPressed: () {
+              print(SQLHelper.getItems);
+            },
+            child: const Text('Medium'),
+          ),
+          ElevatedButton(
+            style: style,
+            onPressed: () {
+              print(SQLHelper.getItems);
+            },
+            child: const Text('Hard'),
+          ),
+          ElevatedButton(
+            style: style,
+            onPressed: () {
+              print(SQLHelper.getItems);
+            },
+            child: const Text('Insane'),
+          ),
+        ],
+      )),
     );
   }
 }
