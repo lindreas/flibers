@@ -1,19 +1,50 @@
 import 'package:flutter/material.dart';
 import 'db.dart';
+import 'screens/home.dart';
 
 void main() {
   runApp(FlibersApp(new Logic()));
 }
 
 class Logic {
-  //Change name of logic to maybe database value choices?
-  void quickGame() {
+  List<String> tricks = [];
+  void getTricks() async {
+    final data = await SQLHelper.getItems();
+    print(data);
+  }
+
+  getRandom(int level) async {
+    final data = await SQLHelper.getRandom(level);
+    tricks = [];
+    for (var e in data) {
+      tricks.add(e['name']);
+    }
+    return tricks;
+  }
+
+  Future<void> _addItem() async {
+    //await SQLHelper.createItem("Switch Frontside 180", 3, "Ollie", 1);
+  }
+
+  void _deleteItem(int id) async {
+    await SQLHelper.deleteItem(id);
+  }
+
+  // Tricks list here and called from here?
+  void easy() {
     print("täällä 1");
   }
 
   void customGame() {
     print("täällä 2");
   }
+}
+
+class AppStyle {
+  final ButtonStyle buttonStyle = ElevatedButton.styleFrom(
+      textStyle: const TextStyle(fontSize: 20, fontFamily: "Droid Sans"),
+      primary: const Color(0xffE47474),
+      minimumSize: const Size(225, 35));
 }
 
 class FlibersApp extends StatelessWidget {
@@ -26,153 +57,6 @@ class FlibersApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: new HomePage(logic),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  final Logic logic;
-
-  HomePage(this.logic);
-
-  List<Map<String, dynamic>> tricks = [];
-
-  void getTricks() async {
-    final data = await SQLHelper.getItems();
-    tricks = data;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final ButtonStyle style = ElevatedButton.styleFrom(
-        textStyle: const TextStyle(fontSize: 20, fontFamily: "Droid Sans"),
-        primary: const Color(0xffE47474),
-        minimumSize: const Size(225, 35));
-    return Scaffold(
-      backgroundColor: const Color(0xff194346),
-      body: Center(
-          child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          ElevatedButton(
-            style: style,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => QuickGame(logic)),
-              );
-            },
-            child: const Text('Quick Game'),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          ElevatedButton(
-            style: style,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => CustomGame(logic)),
-              );
-            },
-            child: const Text('Custom Game'),
-          ),
-        ],
-      )),
-    );
-  }
-
-  void _navigateAndDisplaySelection(BuildContext context) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => FlibersApp(logic)),
-    );
-
-    ScaffoldMessenger.of(context)
-      ..removeCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('$result')));
-  }
-}
-
-class QuickGame extends StatelessWidget {
-  final Logic logic;
-
-  QuickGame(this.logic);
-
-  @override
-  Widget build(BuildContext context) {
-    final ButtonStyle style = ElevatedButton.styleFrom(
-        textStyle: const TextStyle(fontSize: 20, fontFamily: "Droid Sans"),
-        primary: const Color(0xffE47474),
-        minimumSize: const Size(225, 35));
-    return Scaffold(
-      appBar: AppBar(
-        //separate button for back function?
-        backgroundColor: const Color(0xff194346),
-      ),
-      backgroundColor: const Color(0xff194346),
-      body: Center(
-          child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          const Text("Please select difficulty level",
-              style: TextStyle(
-                color: Color(0xffE47474),
-              )),
-          ElevatedButton(
-            style: style,
-            onPressed: () {
-              print(HomePage(logic).tricks);
-            },
-            child: const Text('Easy'),
-          ),
-          ElevatedButton(
-            style: style,
-            onPressed: () {
-              print(SQLHelper.getItems);
-            },
-            child: const Text('Medium'),
-          ),
-          ElevatedButton(
-            style: style,
-            onPressed: () {
-              print(SQLHelper.getItems);
-            },
-            child: const Text('Hard'),
-          ),
-          ElevatedButton(
-            style: style,
-            onPressed: () {
-              print(SQLHelper.getItems);
-            },
-            child: const Text('Insane'),
-          ),
-        ],
-      )),
-    );
-  }
-}
-
-class CustomGame extends StatelessWidget {
-  final Logic logic;
-
-  CustomGame(this.logic);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        //separate button for back function?
-        backgroundColor: const Color(0xff194346),
-      ),
-      backgroundColor: const Color(0xff194346),
-      body: const Center(
-        child: SizedBox(
-          width: 100.0,
-          height: 100.0,
-          child: Card(child: Text("Please select difficulty level")),
-        ),
-      ),
     );
   }
 }
