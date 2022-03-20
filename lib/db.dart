@@ -7,7 +7,8 @@ class SQLHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         name TEXT,
         level INTEGER,
-        category TEXT
+        category TEXT,
+        flat_ground INTEGER
       )
       """);
   }
@@ -17,8 +18,8 @@ class SQLHelper {
 
   static Future<sql.Database> db() async {
     return sql.openDatabase(
-      'tricks.db',
-      version: 1,
+      'flibers_database.db',
+      version: 2,
       onCreate: (sql.Database database, int version) async {
         await createTables(database);
       },
@@ -27,10 +28,15 @@ class SQLHelper {
 
   // Create new item (journal)
   static Future<int> createItem(
-      String name, int? level, String? category) async {
+      String name, int? level, String? category, int? flatGround) async {
     final db = await SQLHelper.db();
 
-    final data = {'name': name, 'level': level, 'category': category};
+    final data = {
+      'name': name,
+      'level': level,
+      'category': category,
+      'flat_ground': flatGround
+    };
     final id = await db.insert('tricks', data,
         conflictAlgorithm: sql.ConflictAlgorithm.replace);
     return id;
@@ -39,22 +45,29 @@ class SQLHelper {
   // Read all items (journals)
   static Future<List<Map<String, dynamic>>> getItems() async {
     final db = await SQLHelper.db();
+    //return db.rawQuery('SELECT * FROM "tricks"');
     return db.query('tricks', orderBy: "id");
   }
 
   // Read a single item by id
   // The app doesn't use this method but I put here in case you want to see it
-  static Future<List<Map<String, dynamic>>> getItem(int id) async {
+  static Future<List<Map<String, dynamic>>> getRandom(int? level) async {
     final db = await SQLHelper.db();
-    return db.query('tricks', where: "id = ?", whereArgs: [id], limit: 1);
+    return db.query('tricks',
+        where: 'level = ?', whereArgs: [level], orderBy: 'RANDOM()', limit: 3);
   }
 
   // Update an item by id
-  static Future<int> updateItem(
-      int id, String name, int? level, String? category) async {
+  static Future<int> updateItem(int id, String name, int? level,
+      String? category, int? flatGround) async {
     final db = await SQLHelper.db();
 
-    final data = {'name': name, 'level': level, 'category': category};
+    final data = {
+      'name': name,
+      'level': level,
+      'category': category,
+      'flat_ground': flatGround
+    };
 
     final result =
         await db.update('tricks', data, where: "id = ?", whereArgs: [id]);
