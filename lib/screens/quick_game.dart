@@ -1,18 +1,18 @@
+import 'package:flibers/screens/game.dart';
 import 'package:flutter/material.dart';
-import 'start.dart';
-import '../db.dart';
+import 'players.dart';
 import '../main.dart';
 
 class QuickGame extends StatelessWidget {
-  Logic logic;
+  Map stats;
 
-  QuickGame(this.logic);
+  QuickGame(this.stats);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        //separate button for back function?
+        automaticallyImplyLeading: true,
         backgroundColor: const Color(0xff194346),
       ),
       backgroundColor: const Color(0xff194346),
@@ -20,10 +20,7 @@ class QuickGame extends StatelessWidget {
           child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          const Text("Please select difficulty level",
-              style: TextStyle(
-                color: Color(0xffE47474),
-              )),
+          const Text("Please select difficulty level"),
           ElevatedButton(
             style: AppStyle().buttonStyle,
             onPressed: () async {
@@ -31,7 +28,9 @@ class QuickGame extends StatelessWidget {
               var tricks = await Logic().getRandom(1);
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => GameStart(tricks)),
+                MaterialPageRoute(
+                    settings: RouteSettings(name: "Game"),
+                    builder: (context) => Game(tricks, stats)),
               );
             },
             child: const Text('Easy'),
@@ -46,17 +45,18 @@ class QuickGame extends StatelessWidget {
           ),
           ElevatedButton(
             style: AppStyle().buttonStyle,
-            onPressed: () {
-              //Logic()._deleteItem(8);
-            },
+            onPressed: () async {},
             child: const Text('Hard'),
           ),
           ElevatedButton(
             style: AppStyle().buttonStyle,
-            onPressed: () {
-              print(SQLHelper.getItems);
+            onPressed: () async {
+              var tricks = await Logic().getTricks();
+              for (var i = 0; i < tricks.length; i++) {
+                print(tricks[i]);
+              }
             },
-            child: const Text('Insane'),
+            child: const Text('Insane (dev: get all tricks)'),
           ),
         ],
       )),
