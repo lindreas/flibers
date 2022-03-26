@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'quick_game.dart';
+import 'players.dart';
 import 'custom_game.dart';
 import '../main.dart';
 
@@ -19,9 +19,13 @@ class HomePage extends StatelessWidget {
           ElevatedButton(
             style: AppStyle().buttonStyle,
             onPressed: () {
+              //Navigator.pushNamed(context, '/players', arguments: logic);
+
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => QuickGame(logic)),
+                MaterialPageRoute(
+                    settings: RouteSettings(name: "Players"),
+                    builder: (context) => Players(logic)),
               );
             },
             child: const Text('Quick Game'),
@@ -32,10 +36,10 @@ class HomePage extends StatelessWidget {
           ElevatedButton(
             style: AppStyle().buttonStyle,
             onPressed: () {
-              Navigator.push(
+              /*Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => CustomGame(logic)),
-              );
+              );*/
             },
             child: const Text('Custom Game'),
           ),
