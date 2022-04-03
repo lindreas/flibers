@@ -11,8 +11,9 @@ int i = 0;
 class Game extends StatefulWidget {
   List tricks;
   Map stats;
+  String gameMode;
 
-  Game(this.tricks, this.stats, {Key? key}) : super(key: key);
+  Game(this.tricks, this.stats, this.gameMode, {Key? key}) : super(key: key);
 
   @override
   _GameState createState() => _GameState();
@@ -21,81 +22,132 @@ class Game extends StatefulWidget {
 class _GameState extends State<Game> {
   static String firstPlayer = "player" + num.toString();
 
-  Text player = Text(stats[firstPlayer]["name"] + ", your turn!");
+  Text player = Text(stats[firstPlayer]["name"] + ", set the trick!");
 
+  bool landedSecondTry = false;
   bool gameOver = false;
   bool landed = false;
+  bool player1SecondTry = false;
+  bool player2SecondTry = false;
   String currentTurn = firstPlayer;
 
-  //bug: one more trick after gameover
-
   void gameLogic(bool bailed) {
-    //gameOver = true;
     setState(() {
-      if (!gameOver) {
-        switch (currentTurn) {
-          case "player1":
-            player = Text(stats["player2"]["name"] + ", your turn!");
-            if (bailed) {
-              if (stats["player1"]["firstToGo"] == false) {
-                switch (stats["player1"]["score"].length) {
-                  case 0:
-                    stats["player1"]["score"].add("S");
-                    break;
-                  case 1:
-                    stats["player1"]["score"].add("K");
-                    break;
-                  case 2:
-                    stats["player1"]["score"].add("A");
-                    break;
-                  case 3:
-                    stats["player1"]["score"].add("T");
-                    break;
-                  case 4:
+      if (player1SecondTry && !bailed) {
+        landedSecondTry = true;
+        player1SecondTry = false;
+        i += 1;
+      }
+      if (player2SecondTry && !bailed) {
+        landedSecondTry = true;
+        player2SecondTry = false;
+        i += 1;
+      }
+
+      switch (currentTurn) {
+        case "player1":
+          if (!player1SecondTry) {
+            if (stats["player2"]["firstToGo"] == true || bailed == true) {
+              player = Text(stats["player2"]["name"] + ", set the trick!");
+            } else {
+              player = Text(stats["player2"]["name"] + ", land it!");
+            }
+          }
+
+          if (bailed) {
+            if (stats["player1"]["firstToGo"] == false) {
+              switch (stats["player1"]["score"].length) {
+                case 0:
+                  stats["player1"]["score"].add("S");
+                  break;
+                case 1:
+                  stats["player1"]["score"].add("K");
+                  break;
+                case 2:
+                  stats["player1"]["score"].add("A");
+                  break;
+                case 3:
+                  stats["player1"]["score"].add("T");
+                  break;
+                case 4:
+                  if (player1SecondTry) {
                     stats["player1"]["score"].add("E");
                     gameOver = true;
-                    break;
-                  default:
-                }
-              } else {
-                stats["player1"]["firstToGo"] = false;
-                stats["player2"]["firstToGo"] = true;
+                  } else {
+                    player = Text(stats["player1"]["name"] +
+                        ", one more try! You bail, you lose.");
+                    player1SecondTry = true;
+                  }
+
+                  break;
+                default:
               }
+            } else {
+              stats["player1"]["firstToGo"] = false;
+              stats["player2"]["firstToGo"] = true;
             }
+          }
+
+          if (!player1SecondTry) {
             currentTurn = "player2";
-            break;
-          case "player2":
-            player = Text(stats["player1"]["name"] + ", your turn!");
-            if (bailed) {
-              if (stats["player2"]["firstToGo"] == false) {
-                switch (stats["player2"]["score"].length) {
-                  case 0:
-                    stats["player2"]["score"].add("S");
-                    break;
-                  case 1:
-                    stats["player2"]["score"].add("K");
-                    break;
-                  case 2:
-                    stats["player2"]["score"].add("A");
-                    break;
-                  case 3:
-                    stats["player2"]["score"].add("T");
-                    break;
-                  case 4:
+          } else {
+            currentTurn = "player1";
+            i -= 1;
+          }
+
+          break;
+
+        case "player2":
+          if (!player2SecondTry) {
+            if (stats["player1"]["firstToGo"] == true || bailed == true) {
+              player = Text(stats["player1"]["name"] + ", set the trick!");
+            } else {
+              player = Text(stats["player1"]["name"] + ", land it!");
+            }
+          }
+
+          if (bailed) {
+            if (stats["player2"]["firstToGo"] == false) {
+              switch (stats["player2"]["score"].length) {
+                case 0:
+                  stats["player2"]["score"].add("S");
+                  break;
+                case 1:
+                  stats["player2"]["score"].add("K");
+                  break;
+                case 2:
+                  stats["player2"]["score"].add("A");
+                  break;
+                case 3:
+                  stats["player2"]["score"].add("T");
+                  break;
+                case 4:
+                  if (player2SecondTry) {
                     stats["player2"]["score"].add("E");
                     gameOver = true;
-                    break;
-                  default:
-                }
-              } else {
-                stats["player2"]["firstToGo"] = false;
-                stats["player1"]["firstToGo"] = true;
+                  } else {
+                    player = Text(stats["player2"]["name"] +
+                        ", one more try! You bail, you lose.");
+                    player2SecondTry = true;
+                  }
+
+                  break;
+                default:
               }
+            } else {
+              stats["player2"]["firstToGo"] = false;
+              stats["player1"]["firstToGo"] = true;
             }
+          }
+          if (!player2SecondTry) {
             currentTurn = "player1";
-            break;
-          default:
-        }
+          } else {
+            currentTurn = "player2";
+            i -= 1;
+          }
+
+          break;
+        default:
       }
     });
   }
@@ -103,16 +155,25 @@ class _GameState extends State<Game> {
   @override
   Widget build(BuildContext context) {
     if (gameOver) {
-      stats["player1"]["score"] = [];
-      stats["player2"]["score"] = [];
-      gameOver = false;
       Future.delayed(Duration.zero, () async {
         Navigator.push(
           context,
           MaterialPageRoute(
-              settings: RouteSettings(name: "GameOver"),
-              builder: (context) => GameOver(widget.tricks, stats)),
-        );
+              settings: const RouteSettings(name: "GameOver"),
+              builder: (context) =>
+                  GameOver(widget.tricks, stats, widget.gameMode)),
+        ).then((value) => setState(() {
+              player = Text(stats[firstPlayer]["name"] + ", set the trick!");
+              stats["player1"]["firstToGo"] = null;
+              stats["player2"]["firstToGo"] = null;
+              stats["player1"]["score"] = [];
+              stats["player2"]["score"] = [];
+              landedSecondTry = false;
+              gameOver = false;
+              landed = false;
+              player1SecondTry = false;
+              player2SecondTry = false;
+            }));
       });
     }
 
@@ -120,7 +181,9 @@ class _GameState extends State<Game> {
       i = 0;
       widget.tricks.shuffle();
     }
+
     String currentTrick = widget.tricks[i];
+
     if (stats[firstPlayer]["firstToGo"] == null) {
       switch (firstPlayer) {
         case "player1":
@@ -134,15 +197,14 @@ class _GameState extends State<Game> {
         default:
       }
     }
-    print(stats);
-    print(widget.tricks);
-    print(widget.tricks.length);
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: const Color(0xff194346),
+        title: DropDownMenu(widget.gameMode),
+        automaticallyImplyLeading: false,
       ),
-      drawer: const MyDrawer(),
       backgroundColor: const Color(0xff194346),
       body: Center(
         child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
@@ -170,7 +232,9 @@ class _GameState extends State<Game> {
             onPressed: () {
               gameLogic(false);
               if (landed) {
-                i += 1;
+                if (!landedSecondTry) {
+                  i += 1;
+                }
                 landed = false;
               } else {
                 landed = true;
@@ -192,42 +256,3 @@ class _GameState extends State<Game> {
     );
   }
 }
-
-
-
-/*
-class GameStart extends StatefulWidget {
-  const GameStart({Key? key}) : super(key: key);
-
-  @override
-  State<GameStart> createState() => _GameStartState();
-}
-
-class _GameStartState extends State<GameStart>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    duration: const Duration(seconds: 2),
-    vsync: this,
-  )..repeat(reverse: true);
-  late final Animation<Offset> _offsetAnimation = Tween<Offset>(
-    begin: const Offset(-5.0, 0.0),
-    end: const Offset(10.0, 0.0),
-  ).animate(CurvedAnimation(
-    parent: _controller,
-    curve: Curves.easeIn,
-  ));
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SlideTransition(
-      position: _offsetAnimation,
-      child: Text(stats["player1"]["name"]),
-    );
-  }
-}*/
