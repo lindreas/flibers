@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../main.dart';
+import 'game.dart';
 
-class GameStart extends StatelessWidget {
+class StartCheck extends StatelessWidget {
   //final Logic logic;
   final List tricks;
 
-  GameStart(this.tricks);
+  StartCheck(this.tricks);
 
   @override
   Widget build(BuildContext context) {
@@ -19,18 +20,18 @@ class GameStart extends StatelessWidget {
           child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          const Text("Ready?",
-              style: TextStyle(
-                color: Color(0xffE47474),
-                fontSize: 50.0,
-              )),
+          const Text("Ready?"),
           const SizedBox(
             height: 20,
           ),
           ElevatedButton(
             style: AppStyle().buttonStyle,
             onPressed: () {
-              print(tricks); //GO TO GAME
+              /*
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Game(tricks)),
+              );*/ //GO TO GAME
             },
             child: const Text("START"),
           )
