@@ -4,12 +4,13 @@ import 'custom_game.dart';
 import '../main.dart';
 
 class HomePage extends StatelessWidget {
-  final Logic logic;
+  //final Logic logic;
 
-  HomePage(this.logic);
+  HomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    String gameMode;
     return Scaffold(
       backgroundColor: const Color(0xff194346),
       body: Center(
@@ -20,12 +21,12 @@ class HomePage extends StatelessWidget {
             style: AppStyle().buttonStyle,
             onPressed: () {
               //Navigator.pushNamed(context, '/players', arguments: logic);
-
+              gameMode = "Quick Game";
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    settings: RouteSettings(name: "Players"),
-                    builder: (context) => Players(logic)),
+                    settings: const RouteSettings(name: "Players"),
+                    builder: (context) => Players(gameMode)),
               );
             },
             child: const Text('Quick Game'),
@@ -36,10 +37,13 @@ class HomePage extends StatelessWidget {
           ElevatedButton(
             style: AppStyle().buttonStyle,
             onPressed: () {
-              /*Navigator.push(
+              gameMode = "Custom Game";
+              Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => CustomGame(logic)),
-              );*/
+                MaterialPageRoute(
+                    settings: const RouteSettings(name: "Players"),
+                    builder: (context) => Players(gameMode)),
+              );
             },
             child: const Text('Custom Game'),
           ),
@@ -51,7 +55,7 @@ class HomePage extends StatelessWidget {
   void _navigateAndDisplaySelection(BuildContext context) async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => FlibersApp(logic)),
+      MaterialPageRoute(builder: (context) => FlibersApp()),
     );
 
     ScaffoldMessenger.of(context)
