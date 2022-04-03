@@ -1,3 +1,5 @@
+import 'package:flibers/screens/custom_game.dart';
+
 import 'game.dart';
 import 'package:flutter/material.dart';
 import 'start.dart';
@@ -13,18 +15,22 @@ createPlayers(String player, String name) {
   stats[player]["name"] = name;
   return stats;
 }
-
+/*
 class ScreenArguments {
-  final Logic logic;
+  //final Logic logic;
+  final String gameMode;
   Map stats;
-  ScreenArguments(this.logic, this.stats);
-}
+  ScreenArguments(this.stats, this.gameMode);
+}*/
 
 class Players extends StatelessWidget {
   //List tricks;
   //Players(this.tricks);
-  final Logic logic;
-  Players(this.logic);
+  //final Logic logic;
+
+  String gameMode;
+
+  Players(this.gameMode, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +52,9 @@ class Players extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      settings: RouteSettings(name: "Players2"),
-                      builder: (context) => Players2(stats, logic)), //tricks,
+                      settings: const RouteSettings(name: "Players2"),
+                      builder: (context) =>
+                          Players2(gameMode, stats)), //tricks,
                 );
               },
               decoration: InputDecoration(
@@ -64,9 +71,10 @@ class Players extends StatelessWidget {
 
 class Players2 extends StatelessWidget {
   //List tricks;
-  Logic logic;
+  final String gameMode;
   Map stats;
-  Players2(this.stats, this.logic); //this.tricks,
+  Players2(this.gameMode, this.stats, {Key? key})
+      : super(key: key); //this.tricks,
 
   @override
   Widget build(BuildContext context) {
@@ -87,13 +95,27 @@ class Players2 extends StatelessWidget {
               //obscureText: true,
               onSubmitted: (String value) async {
                 Map stats = await createPlayers("player2", value);
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      settings: RouteSettings(name: "QuickGame"),
-                      builder: (context) => QuickGame(stats)), //tricks,
-                );
+                switch (gameMode) {
+                  case "Quick Game":
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          settings: const RouteSettings(name: "QuickGame"),
+                          builder: (context) =>
+                              QuickGame(stats, gameMode)), //tricks,
+                    );
+                    break;
+                  case "Custom Game":
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          settings: const RouteSettings(name: "CustomGame"),
+                          builder: (context) =>
+                              TrickSelection(stats, gameMode)), //tricks,
+                    );
+                    break;
+                  default:
+                }
               },
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
