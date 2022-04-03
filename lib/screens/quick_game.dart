@@ -1,12 +1,14 @@
 import 'package:flibers/screens/game.dart';
+import 'package:flibers/models/tricks.dart';
 import 'package:flutter/material.dart';
 import 'players.dart';
 import '../main.dart';
 
 class QuickGame extends StatelessWidget {
   Map stats;
+  String gameMode;
 
-  QuickGame(this.stats);
+  QuickGame(this.stats, this.gameMode, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -25,12 +27,12 @@ class QuickGame extends StatelessWidget {
             style: AppStyle().buttonStyle,
             onPressed: () async {
               //_addItem();
-              var tricks = await Logic().getRandom(1);
+              var tricks = await Tricks().getRandom("Easy");
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    settings: RouteSettings(name: "Game"),
-                    builder: (context) => Game(tricks, stats)),
+                    settings: const RouteSettings(name: "Game"),
+                    builder: (context) => Game(tricks, stats, gameMode)),
               );
             },
             child: const Text('Easy'),
@@ -38,23 +40,44 @@ class QuickGame extends StatelessWidget {
           ElevatedButton(
             style: AppStyle().buttonStyle,
             onPressed: () async {
-              var tricks = await Logic().getRandom(2);
-              print(tricks);
+              var tricks = await Tricks().getRandom("Medium");
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    settings: const RouteSettings(name: "Game"),
+                    builder: (context) => Game(tricks, stats, gameMode)),
+              );
             },
             child: const Text('Medium'),
           ),
           ElevatedButton(
             style: AppStyle().buttonStyle,
-            onPressed: () async {},
+            onPressed: () async {
+              var tricks = await Tricks().getRandom("Hard");
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    settings: const RouteSettings(name: "Game"),
+                    builder: (context) => Game(tricks, stats, gameMode)),
+              );
+            },
             child: const Text('Hard'),
           ),
           ElevatedButton(
             style: AppStyle().buttonStyle,
             onPressed: () async {
-              var tricks = await Logic().getTricks();
+              var tricks = await Tricks().getTricks();
               for (var i = 0; i < tricks.length; i++) {
                 print(tricks[i]);
               }
+              /*
+              var tricks = await Logic().getRandom("Insane");
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    settings: const RouteSettings(name: "Game"),
+                    builder: (context) => Game(tricks, stats)),
+              );*/
             },
             child: const Text('Insane (dev: get all tricks)'),
           ),
